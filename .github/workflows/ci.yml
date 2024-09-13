@@ -6,37 +6,41 @@ on:
       - main
 
 jobs:
-  build-linux:
-    runs-on: ubuntu-latest
-    container:
-      image: ubuntu:latest
+  build:
+    runs-on: ubuntu-latest  # Or any Linux runner
+    strategy:
+      matrix:
+        os: [windows-latest, macOS-latest, ubuntu-latest]
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Run Linux steps
+      - name: Set up the operating system
+        uses: actions/setup-os@v1
+        with:
+          os: ${{ matrix.os }} # Dynamically sets the OS
+
+      - name: Run common steps
         run: |
-          echo "Updating package list and installing curl"
-          apt-get update && apt-get install -y curl # Install curl
-          echo "Listing files in the root directory"
-          ls -l / # List files in the root directory
+          echo "This is a common step for all OSes"
+          echo "Current OS: $(echo ${{ matrix.os }} | awk -F- '{print $1}')"  # Dynamic OS identification
 
-  build-macos:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Run macOS steps
+      # OS-specific steps
+      - name: Run Windows steps (if applicable)
+        if: matrix.os == 'windows-latest'
+        run: powershell -Command "Get-ItemProperty 'C:\Path\to\my\file.txt' | format-list" # Example
+      - name: Run macOS steps (if applicable)
+        if: matrix.os == 'macos-latest'
         run: |
-          echo "Listing files in the home directory"
-          ls -l ~ # List files in the home directory
-
-  build-windows:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Run Windows steps
-        run: powershell -Command "Get-Process | Select-Object -First 5" # List first 5 running processes
+          /bin/ls -l /tmp
+          /Applications/my_application
+      - name: Run Linux steps (inside a container)
+        if: matrix.os == 'ubuntu-latest'
+        container:
+          image: ubuntu:latest # Or any specific image
+          options: "--mount type=bind,source=path/to/host/directory,target=path/to/container/directory" # Important if needing files
+        run: |
+          apt-get update && apt-get install -y file # Example command
+          ls /tmp
+          echo "This is a linux step inside a container"
