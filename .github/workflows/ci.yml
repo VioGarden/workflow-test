@@ -24,7 +24,7 @@ jobs:
       if: runner.os == 'Linux'
       uses: docker://alpine:latest
       with:
-        args: your-linux-command
+        args: echo "Your linux command (placeholder)"
 
     - name: macOS-specific step
       if: runner.os == 'macOS'
