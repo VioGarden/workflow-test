@@ -22,7 +22,7 @@ jobs:
     # OS-specific steps
     - name: Linux-specific step
       if: runner.os == 'Linux'
-      uses: docker://your-docker-image:tag
+      uses: docker://alpine:latest
       with:
         args: your-linux-command
 
