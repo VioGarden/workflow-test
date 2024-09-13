@@ -11,6 +11,9 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, macOS-latest, ubuntu-latest]
+    container:
+      image: ubuntu:latest # Or any specific image
+      options: "--mount type=bind,source=path/to/host/directory,target=path/to/container/directory" # Important if needing files
 
     steps:
       - name: Checkout code
@@ -37,9 +40,6 @@ jobs:
           /Applications/my_application
       - name: Run Linux steps (inside a container)
         if: matrix.os == 'ubuntu-latest'
-        container:
-          image: ubuntu:latest # Or any specific image
-          options: "--mount type=bind,source=path/to/host/directory,target=path/to/container/directory" # Important if needing files
         run: |
           apt-get update && apt-get install -y file # Example command
           ls /tmp
